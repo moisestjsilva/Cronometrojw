@@ -39,6 +39,7 @@ def start_timer(speech):
     st.session_state.current_speech = speech
     st.session_state.start_time = time.time()
     st.session_state.running = True
+    st.session_state.view = 'Cronômetro'
 
 # Função para parar o cronômetro
 def stop_timer():
@@ -82,7 +83,6 @@ elif st.session_state.view == 'Cronômetro':
         for i, speech in enumerate(data):
             if st.button(f"Iniciar {speech['discurso']} ({speech['orador']})"):
                 start_timer(speech)
-                st.experimental_rerun()
     
     if st.session_state.running:
         elapsed_time = time.time() - st.session_state.start_time
@@ -100,7 +100,6 @@ elif st.session_state.view == 'Cronômetro':
         
         if st.button("Parar Cronômetro"):
             stop_timer()
-            st.experimental_rerun()
 
     if st.button("Voltar ao Cadastro"):
         st.session_state.view = 'Cadastro'
