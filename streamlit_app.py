@@ -11,7 +11,7 @@ if 'start_time' not in st.session_state:
     st.session_state.start_time = None
 
 if 'current_speech' not in st.session_state:
-    st.session_state.current_speech = None
+    st.session_state.current_speech = {}
 
 if 'data' not in st.session_state:
     st.session_state.data = []
@@ -48,8 +48,8 @@ def stop_timer():
         elapsed_time = time.time() - st.session_state.start_time
         st.session_state.running = False
         st.session_state.data.append({
-            'orador': st.session_state.current_speech['orador'],
-            'discurso': st.session_state.current_speech['discurso'],
+            'orador': st.session_state.current_speech.get('orador', 'Desconhecido'),
+            'discurso': st.session_state.current_speech.get('discurso', 'Desconhecido'),
             'tempo': round(elapsed_time, 2),
             'data': datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         })
@@ -67,10 +67,16 @@ if st.session_state.view == 'Cronômetro':
     
     if st.session_state.current_speech and st.session_state.running:
         elapsed_time = time.time() - st.session_state.start_time
-        time_left = st.session_state.current_speech['tempo_previsto'] * 60 - elapsed_time
+        
+        # Verificação adicional de tempo previsto para evitar erros
+        if 'tempo_previsto' in st.session_state.current_speech:
+            time_left = st.session_state.current_speech['tempo_previsto'] * 60 - elapsed_time
+        else:
+            st.write("Erro: 'tempo_previsto' não encontrado.")
+            time_left = 0  # Atribuindo um valor padrão caso não exista
 
         # Assegurar que o progresso esteja dentro do intervalo 0-1
-        progress = min(elapsed_time / (st.session_state.current_speech['tempo_previsto'] * 60), 1)
+        progress = min(elapsed_time / (st.session_state.current_speech.get('tempo_previsto', 1) * 60), 1)
         
         if time_left > 60:
             color = "green"
@@ -81,8 +87,8 @@ if st.session_state.view == 'Cronômetro':
         
         st.markdown(f"<h1 style='color:{color}; text-align: center; font-size: 100px;'>{format_time(elapsed_time)}</h1>", unsafe_allow_html=True)
         st.progress(progress)
-        st.subheader(st.session_state.current_speech['orador'])
-        st.caption(st.session_state.current_speech['discurso'])
+        st.subheader(st.session_state.current_speech.get('orador', 'Desconhecido'))
+        st.caption(st.session_state.current_speech.get('discurso', 'Sem título'))
         
         if st.button("Parar Cronômetro"):
             stop_timer()
