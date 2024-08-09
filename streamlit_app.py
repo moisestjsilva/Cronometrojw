@@ -65,23 +65,30 @@ if st.session_state.view == 'Cronômetro':
     st.title("Cronômetro de Discursos")
     
     if st.session_state.running:
-        elapsed_time = time.time() - st.session_state.start_time
-        time_left = st.session_state.current_speech['tempo_previsto'] * 60 - elapsed_time
+        # Atualiza a cada segundo
+        while st.session_state.running:
+            elapsed_time = time.time() - st.session_state.start_time
+            time_left = st.session_state.current_speech['tempo_previsto'] * 60 - elapsed_time
 
-        # Assegurar que o progresso esteja dentro do intervalo 0-1
-        progress = min(elapsed_time / (st.session_state.current_speech['tempo_previsto'] * 60), 1)
-        
-        if time_left > 60:
-            color = "green"
-        elif time_left > 0:
-            color = "yellow"
-        else:
-            color = "red"
-        
-        st.markdown(f"<h1 style='color:{color}; text-align: center; font-size: 100px;'>{format_time(elapsed_time)}</h1>", unsafe_allow_html=True)
-        st.progress(progress)
-        st.subheader(st.session_state.current_speech['orador'])
-        st.caption(st.session_state.current_speech['discurso'])
+            # Assegurar que o progresso esteja dentro do intervalo 0-1
+            progress = min(elapsed_time / (st.session_state.current_speech['tempo_previsto'] * 60), 1)
+            
+            if time_left > 60:
+                color = "green"
+            elif time_left > 0:
+                color = "yellow"
+            else:
+                color = "red"
+            
+            st.markdown(f"<h1 style='color:{color}; text-align: center; font-size: 100px;'>{format_time(elapsed_time)}</h1>", unsafe_allow_html=True)
+            st.progress(progress)
+            st.subheader(st.session_state.current_speech['orador'])
+            st.caption(st.session_state.current_speech['discurso'])
+            
+            time.sleep(1)  # Atualiza a cada segundo
+            
+            if not st.session_state.running:
+                break
         
         if st.button("Parar Cronômetro"):
             stop_timer()
