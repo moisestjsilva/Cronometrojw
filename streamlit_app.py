@@ -65,7 +65,7 @@ def format_time(seconds):
 if st.session_state.view == 'Cronômetro':
     st.title("Cronômetro de Discursos")
     
-    if st.session_state.running:
+    if st.session_state.current_speech and st.session_state.running:
         elapsed_time = time.time() - st.session_state.start_time
         time_left = st.session_state.current_speech['tempo_previsto'] * 60 - elapsed_time
 
@@ -91,7 +91,7 @@ if st.session_state.view == 'Cronômetro':
         time.sleep(1)  # Atualiza a cada segundo
         st.experimental_rerun()  # Força a atualização da página
     else:
-        st.write("Cronômetro não iniciado. Use a tela de cadastro para iniciar o cronômetro.")
+        st.write("Cronômetro não iniciado ou discurso não selecionado. Use a tela de cadastro para iniciar o cronômetro.")
     
     if st.button("Ir para Cadastro"):
         st.session_state.view = 'Cadastro'
