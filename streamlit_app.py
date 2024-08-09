@@ -40,6 +40,7 @@ def start_timer(speech):
     st.session_state.start_time = time.time()
     st.session_state.running = True
     st.session_state.view = 'Cronômetro'
+    st.experimental_rerun()
 
 # Função para parar o cronômetro
 def stop_timer():
@@ -65,38 +66,36 @@ if st.session_state.view == 'Cronômetro':
     st.title("Cronômetro de Discursos")
     
     if st.session_state.running:
-        # Atualiza a cada segundo
-        while st.session_state.running:
-            elapsed_time = time.time() - st.session_state.start_time
-            time_left = st.session_state.current_speech['tempo_previsto'] * 60 - elapsed_time
+        elapsed_time = time.time() - st.session_state.start_time
+        time_left = st.session_state.current_speech['tempo_previsto'] * 60 - elapsed_time
 
-            # Assegurar que o progresso esteja dentro do intervalo 0-1
-            progress = min(elapsed_time / (st.session_state.current_speech['tempo_previsto'] * 60), 1)
-            
-            if time_left > 60:
-                color = "green"
-            elif time_left > 0:
-                color = "yellow"
-            else:
-                color = "red"
-            
-            st.markdown(f"<h1 style='color:{color}; text-align: center; font-size: 100px;'>{format_time(elapsed_time)}</h1>", unsafe_allow_html=True)
-            st.progress(progress)
-            st.subheader(st.session_state.current_speech['orador'])
-            st.caption(st.session_state.current_speech['discurso'])
-            
-            time.sleep(1)  # Atualiza a cada segundo
-            
-            if not st.session_state.running:
-                break
+        # Assegurar que o progresso esteja dentro do intervalo 0-1
+        progress = min(elapsed_time / (st.session_state.current_speech['tempo_previsto'] * 60), 1)
+        
+        if time_left > 60:
+            color = "green"
+        elif time_left > 0:
+            color = "yellow"
+        else:
+            color = "red"
+        
+        st.markdown(f"<h1 style='color:{color}; text-align: center; font-size: 100px;'>{format_time(elapsed_time)}</h1>", unsafe_allow_html=True)
+        st.progress(progress)
+        st.subheader(st.session_state.current_speech['orador'])
+        st.caption(st.session_state.current_speech['discurso'])
         
         if st.button("Parar Cronômetro"):
             stop_timer()
+            st.experimental_rerun()
+        
+        time.sleep(1)  # Atualiza a cada segundo
+        st.experimental_rerun()  # Força a atualização da página
     else:
         st.write("Cronômetro não iniciado. Use a tela de cadastro para iniciar o cronômetro.")
     
     if st.button("Ir para Cadastro"):
         st.session_state.view = 'Cadastro'
+        st.experimental_rerun()
 
 # Interface de cadastro de discursos
 elif st.session_state.view == 'Cadastro':
@@ -122,6 +121,7 @@ elif st.session_state.view == 'Cadastro':
 
     if st.button("Ir para Cronômetro"):
         st.session_state.view = 'Cronômetro'
+        st.experimental_rerun()
 
 # Exibir tempos dos discursos anteriores
 if st.button("Ver Tempos Registrados"):
