@@ -3,6 +3,22 @@ import time
 import json
 from datetime import datetime
 
+# Inicializar variáveis de estado
+if 'running' not in st.session_state:
+    st.session_state.running = False
+
+if 'start_time' not in st.session_state:
+    st.session_state.start_time = None
+
+if 'current_speech' not in st.session_state:
+    st.session_state.current_speech = None
+
+if 'data' not in st.session_state:
+    st.session_state.data = []
+
+if 'view' not in st.session_state:
+    st.session_state.view = 'Cadastro'
+
 # Funções para carregar e salvar dados
 def load_data():
     try:
@@ -15,21 +31,16 @@ def save_data(data):
     with open("data.json", "w") as file:
         json.dump(data, file)
 
-# Configurar a página
-st.set_page_config(layout="wide")
-
 # Carregar dados
 data = load_data()
 
-# Tela de cadastro de discursos
-if 'view' not in st.session_state:
-    st.session_state.view = 'Cadastro'
-
+# Função para iniciar o cronômetro
 def start_timer(speech):
     st.session_state.current_speech = speech
     st.session_state.start_time = time.time()
     st.session_state.running = True
 
+# Função para parar o cronômetro
 def stop_timer():
     if st.session_state.running:
         elapsed_time = time.time() - st.session_state.start_time
@@ -42,7 +53,7 @@ def stop_timer():
         })
         save_data(st.session_state.data)
 
-# Interface de cadastro
+# Interface de cadastro de discursos
 if st.session_state.view == 'Cadastro':
     st.title("Cadastro de Discursos")
     with st.form("Cadastro de Discurso"):
@@ -63,7 +74,7 @@ if st.session_state.view == 'Cadastro':
     if st.button("Iniciar Cronômetro"):
         st.session_state.view = 'Cronômetro'
 
-# Interface de cronômetro
+# Interface do cronômetro
 elif st.session_state.view == 'Cronômetro':
     st.title("Cronômetro")
     
@@ -86,6 +97,7 @@ elif st.session_state.view == 'Cronômetro':
         
         st.markdown(f"<h1 style='color:{color};'>{round(elapsed_time, 2)}s</h1>", unsafe_allow_html=True)
         st.progress(elapsed_time / (st.session_state.current_speech['tempo_previsto'] * 60))
+        
         if st.button("Parar Cronômetro"):
             stop_timer()
             st.experimental_rerun()
@@ -95,4 +107,4 @@ elif st.session_state.view == 'Cronômetro':
 
 # Exibir tempos dos discursos anteriores
 if st.button("Ver Tempos Registrados"):
-    st.write(load_data())
+    st.write(st.session_state.data)
