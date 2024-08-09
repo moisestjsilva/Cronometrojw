@@ -54,6 +54,12 @@ def stop_timer():
         })
         save_data(st.session_state.data)
 
+# Função para formatar o tempo em Minutos:Segundos
+def format_time(seconds):
+    minutes = int(seconds // 60)
+    seconds = int(seconds % 60)
+    return f"{minutes:02d}:{seconds:02d}"
+
 # Interface do cronômetro
 if st.session_state.view == 'Cronômetro':
     st.title("Cronômetro de Discursos")
@@ -69,7 +75,7 @@ if st.session_state.view == 'Cronômetro':
         else:
             color = "red"
         
-        st.markdown(f"<h1 style='color:{color}; text-align: center; font-size: 100px;'>{round(elapsed_time, 2)}s</h1>", unsafe_allow_html=True)
+        st.markdown(f"<h1 style='color:{color}; text-align: center; font-size: 100px;'>{format_time(elapsed_time)}</h1>", unsafe_allow_html=True)
         st.progress(elapsed_time / (st.session_state.current_speech['tempo_previsto'] * 60))
         st.subheader(st.session_state.current_speech['orador'])
         st.caption(st.session_state.current_speech['discurso'])
