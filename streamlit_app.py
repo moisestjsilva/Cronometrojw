@@ -17,7 +17,7 @@ if 'data' not in st.session_state:
     st.session_state.data = []
 
 if 'view' not in st.session_state:
-    st.session_state.view = 'Cadastro'
+    st.session_state.view = 'Cronômetro'
 
 # Funções para carregar e salvar dados
 def load_data():
@@ -54,8 +54,36 @@ def stop_timer():
         })
         save_data(st.session_state.data)
 
+# Interface do cronômetro
+if st.session_state.view == 'Cronômetro':
+    st.title("Cronômetro de Discursos")
+    
+    if st.session_state.running:
+        elapsed_time = time.time() - st.session_state.start_time
+        time_left = st.session_state.current_speech['tempo_previsto'] * 60 - elapsed_time
+        
+        if time_left > 60:
+            color = "green"
+        elif time_left > 0:
+            color = "yellow"
+        else:
+            color = "red"
+        
+        st.markdown(f"<h1 style='color:{color}; text-align: center; font-size: 100px;'>{round(elapsed_time, 2)}s</h1>", unsafe_allow_html=True)
+        st.progress(elapsed_time / (st.session_state.current_speech['tempo_previsto'] * 60))
+        st.subheader(st.session_state.current_speech['orador'])
+        st.caption(st.session_state.current_speech['discurso'])
+        
+        if st.button("Parar Cronômetro"):
+            stop_timer()
+    else:
+        st.write("Cronômetro não iniciado. Use a tela de cadastro para iniciar o cronômetro.")
+    
+    if st.button("Ir para Cadastro"):
+        st.session_state.view = 'Cadastro'
+
 # Interface de cadastro de discursos
-if st.session_state.view == 'Cadastro':
+elif st.session_state.view == 'Cadastro':
     st.title("Cadastro de Discursos")
     with st.form("Cadastro de Discurso"):
         orador = st.text_input("Nome do Orador")
@@ -72,37 +100,12 @@ if st.session_state.view == 'Cadastro':
             save_data(data)
             st.success("Discurso cadastrado com sucesso!")
 
-    if st.button("Iniciar Cronômetro"):
+    for i, speech in enumerate(data):
+        if st.button(f"Iniciar {speech['discurso']} ({speech['orador']})"):
+            start_timer(speech)
+
+    if st.button("Ir para Cronômetro"):
         st.session_state.view = 'Cronômetro'
-
-# Interface do cronômetro
-elif st.session_state.view == 'Cronômetro':
-    st.title("Cronômetro")
-    
-    if not st.session_state.running:
-        for i, speech in enumerate(data):
-            if st.button(f"Iniciar {speech['discurso']} ({speech['orador']})"):
-                start_timer(speech)
-    
-    if st.session_state.running:
-        elapsed_time = time.time() - st.session_state.start_time
-        time_left = st.session_state.current_speech['tempo_previsto'] * 60 - elapsed_time
-        
-        if time_left > 60:
-            color = "green"
-        elif time_left > 0:
-            color = "yellow"
-        else:
-            color = "red"
-        
-        st.markdown(f"<h1 style='color:{color};'>{round(elapsed_time, 2)}s</h1>", unsafe_allow_html=True)
-        st.progress(elapsed_time / (st.session_state.current_speech['tempo_previsto'] * 60))
-        
-        if st.button("Parar Cronômetro"):
-            stop_timer()
-
-    if st.button("Voltar ao Cadastro"):
-        st.session_state.view = 'Cadastro'
 
 # Exibir tempos dos discursos anteriores
 if st.button("Ver Tempos Registrados"):
